@@ -22,108 +22,67 @@
     input {
       width: 100%; padding: 12px; border-radius: 10px;
       border: 1px solid #1f2937; background: #0b1220;
-      color: #e5e7eb; margin-bottom: 10px; font-size: 14px; outline: none;
+      color: #e5e7eb; margin-bottom: 10px;
     }
-    input::placeholder { color: #94a3b8; }
     button {
-      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      width: 100%; padding: 12px; border-radius: 10px;
       background: linear-gradient(135deg,#38bdf8,#60a5fa);
-      color: #0b1220; font-weight: 700; font-size: 15px; cursor: pointer;
+      font-weight: 700; cursor: pointer;
     }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .hint { font-size: 12px; opacity: .9; margin-top: 8px; text-align: center; min-height: 16px; }
-    .voucher-img { width: 100%; border-radius: 12px; margin-top: 10px; }
+    .voucher-img { width:100%; border-radius:12px; margin-top:10px; }
     .link { display:block; text-align:center; margin-top:8px; color:#38bdf8; }
+    .hint { font-size: 12px; text-align:center; margin-top:8px; min-height:16px; }
   </style>
 </head>
 <body>
   <div class="card" id="card">
-    <h3>ลงทะเบียนรับ Central Voucher 1,200 บาท</h3>
-
+    <h3>ลงทะเบียนรับ Central Voucher</h3>
     <input id="name" placeholder="ชื่อ-นามสกุล" />
-    <input id="tel" placeholder="เบอร์โทร" inputmode="numeric" />
+    <input id="tel" placeholder="เบอร์โทร" />
     <input id="code" placeholder="Voucher Code (เช่น AS1005701)" />
-
     <button id="btn" onclick="submitForm()">รับ Voucher</button>
     <div class="hint" id="status"></div>
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
 
-    async function submitForm() {
-      const btn = document.getElementById("btn");
-      const status = document.getElementById("status");
+async function submitForm() {
+  const status = document.getElementById("status");
+  const btn = document.getElementById("btn");
 
-      const nameEl = document.getElementById("name");
-      const telEl = document.getElementById("tel");
-      const codeEl = document.getElementById("code");
+  const name = nameEl.value.trim();
+  const tel = telEl.value.trim();
+  const code = codeEl.value.trim().toUpperCase();
 
-      const name = nameEl.value.trim();
-      const tel = telEl.value.trim();
-      const code = codeEl.value.trim().toUpperCase();
+  status.textContent = "กำลังเชื่อมต่อ...";
+  btn.disabled = true;
 
-      if (!name || !tel || !code) {
-        status.textContent = "กรอกข้อมูลให้ครบ";
-        status.style.color = "#ef4444";
-        return;
-      }
-      if (!/^AS\d+$/.test(code)) {
-        status.textContent = "รูปแบบ Voucher Code ไม่ถูกต้อง";
-        status.style.color = "#ef4444";
-        return;
-      }
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "submitCentral", name, tel, code })
+    });
 
-      btn.disabled = true;
-      status.textContent = "กำลังส่งข้อมูล...";
-      status.style.color = "#93c5fd";
+    const json = await res.json();
 
-      const payload = { action: "submitCentral", name, tel, code };
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-           mode: "cors",                 // 👈 บอกชัดว่าใช้ CORS
- 	     credentials: "omit",          // 👈 กันปัญหา cookie/preflight บางเครื่อง
- 	     headers: { "Content-Type": "application/json" },
-  	      body: JSON.stringify(payload)
-        });
-
-        const text = await res.text();
-	if (!text) throw new Error("API ไม่ได้ตอบอะไรกลับมา");
-	let json;
-	try {
- 	 json = JSON.parse(text);
-	} catch {
- 	 throw new Error("API ไม่ได้ตอบ JSON: " + text);
-	}
-
-        if (json.ok) {
-          showVoucher(json.voucher, json.imgUrl, json.pdfUrl);
-        } else {
-          status.textContent = json.message || "ระบบมีปัญหา";
-          status.style.color = "#ef4444";
-        }
-
-      } catch (e) {
-        console.error(e);
-        status.textContent = "เชื่อมต่อระบบไม่ได้ ลองใหม่อีกครั้ง";
-        status.style.color = "#ef4444";
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    function showVoucher(voucher, imgUrl, pdfUrl) {
-      const card = document.getElementById("card");
-      card.innerHTML = `
+    if (json.ok) {
+      document.getElementById("card").innerHTML = `
         <h3>🎉 รับ Voucher สำเร็จ</h3>
-        <div class="hint">โค้ด: <b>${voucher}</b></div>
-        <img class="voucher-img" src="${imgUrl}" />
-        <a class="link" href="${pdfUrl}" target="_blank">ดาวน์โหลด PDF</a>
-        <button style="margin-top:12px" onclick="location.reload()">ลงทะเบียนใหม่</button>
+        <img class="voucher-img" src="${json.imgUrl}">
+        <a class="link" href="${json.pdfUrl}" target="_blank">ดาวน์โหลด PDF</a>
       `;
+    } else {
+      status.textContent = json.message || "ระบบผิดพลาด";
     }
-  </script>
+
+  } catch (e) {
+    status.textContent = "❌ เชื่อมต่อ API ไม่ได้";
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
 </body>
 </html>

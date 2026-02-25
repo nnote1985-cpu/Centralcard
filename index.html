@@ -44,7 +44,7 @@
     <div class="hint" id="status"></div>
   </div>
 
- <script>
+<script>
   const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
 
   async function submitForm() {
@@ -52,7 +52,7 @@
     const status = document.getElementById("status");
 
     const name = document.getElementById("name").value.trim();
-    const tel = document.getElementById("tel").value.trim();
+    const tel  = document.getElementById("tel").value.trim();
     const code = document.getElementById("code").value.trim().toUpperCase();
 
     if (!name || !tel || !code) {
@@ -66,7 +66,7 @@
     status.style.color = "#93c5fd";
 
     try {
-      // ส่งลงทะเบียน (เหมือนของเดิมที่เคยใช้ได้)
+      // 1) ส่งลงทะเบียน (ของเดิมที่เคยใช้ได้)
       await fetch(API_URL, {
         method: "POST",
         mode: "no-cors",
@@ -76,7 +76,7 @@
 
       status.textContent = "ลงทะเบียนสำเร็จ กำลังเปิดรูปคูปอง...";
 
-      // ขอรูปล่าสุดของเบอร์นี้ (อ่าน JSON ได้)
+      // 2) ขอ URL รูปล่าสุดของเบอร์นี้ (อ่าน JSON ได้)
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,7 +86,7 @@
       const json = await res.json();
       if (!json.ok) throw new Error(json.message || "ไม่พบรูป");
 
-      // เปิดรูปคูปองอัตโนมัติ
+      // 3) เปิดรูปทันที (ไม่ชน CORS)
       window.open(json.imgUrl, "_blank");
 
       status.textContent = "เปิดรูปคูปองแล้ว 🎉";

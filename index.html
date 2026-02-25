@@ -44,48 +44,61 @@
     <div class="hint" id="status"></div>
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
+ <script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
 
-    async function submitForm() {
-      const btn = document.getElementById("btn");
-      const status = document.getElementById("status");
+  async function submitForm() {
+    const btn = document.getElementById("btn");
+    const status = document.getElementById("status");
 
-      const name = document.getElementById("name").value.trim();
-      const tel = document.getElementById("tel").value.trim();
-      const code = document.getElementById("code").value.trim().toUpperCase();
+    const name = document.getElementById("name").value.trim();
+    const tel = document.getElementById("tel").value.trim();
+    const code = document.getElementById("code").value.trim().toUpperCase();
 
-      if (!name || !tel || !code) {
-        status.textContent = "กรอกข้อมูลให้ครบ";
-        return;
-      }
-
-      btn.disabled = true;
-      status.textContent = "กำลังส่งข้อมูล...";
-
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action:"submitCentral", name, tel, code })
-        });
-
-        status.textContent = "รับ Voucher เรียบร้อย 🎉 กำลังเปิดรูปให้...";
-        
-        // 🔥 เปิดหน้ารูปจาก Google Sheet ล่าสุด
-        // ใส่ลิงก์ชีตของคุณ (ที่เปิด public)
-        window.open(
-          "https://docs.google.com/spreadsheets/d/1XZihZvcbbgviSnBPYvuZkPP7HcbCJkcq-I5Vf9Ziq3M/edit#gid=0",
-          "_blank"
-        );
-
-      } catch (e) {
-        status.textContent = "เชื่อมต่อระบบไม่ได้";
-      } finally {
-        btn.disabled = false;
-      }
+    if (!name || !tel || !code) {
+      status.textContent = "กรอกข้อมูลให้ครบ";
+      status.style.color = "#ef4444";
+      return;
     }
-  </script>
+
+    btn.disabled = true;
+    status.textContent = "กำลังส่งข้อมูล...";
+    status.style.color = "#93c5fd";
+
+    try {
+      // ส่งลงทะเบียน (เหมือนของเดิมที่เคยใช้ได้)
+      await fetch(API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action:"submitCentral", name, tel, code })
+      });
+
+      status.textContent = "ลงทะเบียนสำเร็จ กำลังเปิดรูปคูปอง...";
+
+      // ขอรูปล่าสุดของเบอร์นี้ (อ่าน JSON ได้)
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action:"getLastVoucherByTel", tel })
+      });
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.message || "ไม่พบรูป");
+
+      // เปิดรูปคูปองอัตโนมัติ
+      window.open(json.imgUrl, "_blank");
+
+      status.textContent = "เปิดรูปคูปองแล้ว 🎉";
+
+    } catch (e) {
+      console.error(e);
+      status.textContent = "เชื่อมต่อระบบไม่ได้";
+      status.style.color = "#ef4444";
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
 </body>
 </html>

@@ -47,58 +47,71 @@
   </div>
 
   <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
 
-  async function submitForm() {
-    const btn = document.getElementById("btn");
-    const status = document.getElementById("status");
+    async function submitForm() {
+      const btn = document.getElementById("btn");
+      const status = document.getElementById("status");
 
-    const name = document.getElementById("name").value.trim();
-    const tel = document.getElementById("tel").value.trim();
-    const code = document.getElementById("code").value.trim().toUpperCase();
+      const nameEl = document.getElementById("name");
+      const telEl = document.getElementById("tel");
+      const codeEl = document.getElementById("code");
 
-    if (!name || !tel || !code) {
-      status.textContent = "กรอกข้อมูลให้ครบ";
-      status.style.color = "#ef4444";
-      return;
-    }
-    if (!/^AS\d+$/.test(code)) {
-      status.textContent = "รูปแบบ Voucher Code ไม่ถูกต้อง";
-      status.style.color = "#ef4444";
-      return;
-    }
+      const name = nameEl.value.trim();
+      const tel = telEl.value.trim();
+      const code = codeEl.value.trim().toUpperCase();
 
-    btn.disabled = true;
-    status.textContent = "กำลังส่งข้อมูล...";
-    status.style.color = "#93c5fd";
-
-    const payload = { action: "submitCentral", name, tel, code };
-
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const json = await res.json();
-
-      if (json.ok) {
-        status.textContent = "รับ Voucher เรียบร้อย 🎉";
-        status.style.color = "#22c55e";
-        name.value = tel.value = code.value = "";
-      } else {
-        status.textContent = json.message || "ระบบมีปัญหา";
+      if (!name || !tel || !code) {
+        status.textContent = "กรอกข้อมูลให้ครบ";
         status.style.color = "#ef4444";
+        return;
+      }
+      if (!/^AS\d+$/.test(code)) {
+        status.textContent = "รูปแบบ Voucher Code ไม่ถูกต้อง";
+        status.style.color = "#ef4444";
+        return;
       }
 
-    } catch (e) {
-      status.textContent = "เชื่อมต่อระบบไม่ได้ ลองใหม่อีกครั้ง";
-      status.style.color = "#ef4444";
-    } finally {
-      btn.disabled = false;
+      btn.disabled = true;
+      status.textContent = "กำลังส่งข้อมูล...";
+      status.style.color = "#93c5fd";
+
+      const payload = { action: "submitCentral", name, tel, code };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await res.text();   // ปลอดภัยกว่า json ตรง ๆ
+        let json;
+        try {
+          json = JSON.parse(text);
+        } catch {
+          throw new Error("API ตอบไม่ใช่ JSON: " + text);
+        }
+
+        if (json.ok) {
+          status.textContent = "รับ Voucher เรียบร้อย 🎉";
+          status.style.color = "#22c55e";
+          nameEl.value = "";
+          telEl.value = "";
+          codeEl.value = "";
+        } else {
+          status.textContent = json.message || "ระบบมีปัญหา";
+          status.style.color = "#ef4444";
+        }
+
+      } catch (e) {
+        console.error(e);
+        status.textContent = "เชื่อมต่อระบบไม่ได้ ลองใหม่อีกครั้ง";
+        status.style.color = "#ef4444";
+      } finally {
+        btn.disabled = false;
+      }
     }
-  }
-</script>
+  </script>
 </body>
 </html>

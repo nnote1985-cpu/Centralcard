@@ -79,30 +79,20 @@
       const payload = { action: "submitCentral", name, tel, code };
 
       try {
-        const res = await fetch(API_URL, {
+        // ✅ แก้ตรงนี้: ใช้ no-cors เพื่อไม่โดน CORS ของ Google Apps Script
+        await fetch(API_URL, {
           method: "POST",
+          mode: "no-cors",                 // 👈 สำคัญมาก
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
-        const text = await res.text();   // ปลอดภัยกว่า json ตรง ๆ
-        let json;
-        try {
-          json = JSON.parse(text);
-        } catch {
-          throw new Error("API ตอบไม่ใช่ JSON: " + text);
-        }
-
-        if (json.ok) {
-          status.textContent = "รับ Voucher เรียบร้อย 🎉";
-          status.style.color = "#22c55e";
-          nameEl.value = "";
-          telEl.value = "";
-          codeEl.value = "";
-        } else {
-          status.textContent = json.message || "ระบบมีปัญหา";
-          status.style.color = "#ef4444";
-        }
+        // no-cors อ่าน response ไม่ได้ → ถือว่าส่งสำเร็จถ้าไม่ error
+        status.textContent = "รับ Voucher เรียบร้อย 🎉";
+        status.style.color = "#22c55e";
+        nameEl.value = "";
+        telEl.value = "";
+        codeEl.value = "";
 
       } catch (e) {
         console.error(e);

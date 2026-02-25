@@ -83,17 +83,20 @@
       try {
         const res = await fetch(API_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+           mode: "cors",                 // 👈 บอกชัดว่าใช้ CORS
+ 	     credentials: "omit",          // 👈 กันปัญหา cookie/preflight บางเครื่อง
+ 	     headers: { "Content-Type": "application/json" },
+  	      body: JSON.stringify(payload)
         });
 
         const text = await res.text();
-        let json;
-        try {
-          json = JSON.parse(text);
-        } catch {
-          throw new Error("API ไม่ได้ตอบ JSON: " + text);
-        }
+	if (!text) throw new Error("API ไม่ได้ตอบอะไรกลับมา");
+	let json;
+	try {
+ 	 json = JSON.parse(text);
+	} catch {
+ 	 throw new Error("API ไม่ได้ตอบ JSON: " + text);
+	}
 
         if (json.ok) {
           showVoucher(json.voucher, json.imgUrl, json.pdfUrl);

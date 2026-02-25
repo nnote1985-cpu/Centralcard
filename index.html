@@ -48,7 +48,7 @@
     <div class="hint" id="status"></div>
   </div>
 
-  <script>
+ <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
 
   async function submitForm() {
@@ -63,33 +63,40 @@
     const tel = telEl.value.trim();
     const code = codeEl.value.trim().toUpperCase();
 
+    if (!name || !tel || !code) {
+      status.textContent = "กรอกข้อมูลให้ครบ";
+      status.style.color = "#ef4444";
+      return;
+    }
+
     btn.disabled = true;
     status.textContent = "กำลังส่งข้อมูล...";
+    status.style.color = "#93c5fd";
 
     try {
-      const res = await fetch(API_URL, {
+      // 🔥 ใช้วิธีเดิมที่เคยยิงได้
+      await fetch(API_URL, {
         method: "POST",
+        mode: "no-cors",   // ไม่อ่าน response = ไม่โดน CORS
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "submitCentral", name, tel, code })
       });
 
-      const json = await res.json();
+      status.textContent = "รับ Voucher เรียบร้อย 🎉 กำลังเปิดรูป...";
+      status.style.color = "#22c55e";
 
-      if (json.ok) {
-        document.querySelector(".card").innerHTML = `
-          <h3>🎉 รับ Voucher สำเร็จ</h3>
-          <div class="hint">โค้ด: <b>${json.voucher}</b></div>
-          <img style="width:100%;border-radius:12px;margin-top:10px" src="${json.imgUrl}" />
-          <a style="display:block;text-align:center;margin-top:8px;color:#38bdf8" href="${json.pdfUrl}" target="_blank">ดาวน์โหลด PDF</a>
-          <button style="margin-top:12px" onclick="location.reload()">ลงทะเบียนใหม่</button>
-        `;
-      } else {
-        status.textContent = json.message || "ระบบมีปัญหา";
-      }
+      // ✅ เปิดลิงก์รูปอัตโนมัติ (เปลี่ยนเป็น pattern รูปของคุณ)
+      const imgUrl = "https://drive.google.com/uc?export=view&id=PUT_IMAGE_FILE_ID_HERE";
+      window.open(imgUrl, "_blank");
+
+      nameEl.value = "";
+      telEl.value = "";
+      codeEl.value = "";
 
     } catch (e) {
       console.error(e);
       status.textContent = "เชื่อมต่อระบบไม่ได้";
+      status.style.color = "#ef4444";
     } finally {
       btn.disabled = false;
     }

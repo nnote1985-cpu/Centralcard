@@ -24,83 +24,68 @@
       border: 1px solid #1f2937; background: #0b1220;
       color: #e5e7eb; margin-bottom: 10px; font-size: 14px; outline: none;
     }
-    input::placeholder { color: #94a3b8; }
     button {
       width: 100%; padding: 12px; border: none; border-radius: 10px;
       background: linear-gradient(135deg,#38bdf8,#60a5fa);
       color: #0b1220; font-weight: 700; font-size: 15px; cursor: pointer;
     }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .hint { font-size: 12px; opacity: .9; margin-top: 8px; text-align: center; min-height: 16px; }
-    .voucher-img { width: 100%; border-radius: 12px; margin-top: 10px; }
-    .link { display:block; text-align:center; margin-top:8px; color:#38bdf8; }
+    .hint { font-size: 12px; margin-top: 8px; text-align: center; }
   </style>
 </head>
 <body>
-  <div class="card" id="card">
+  <div class="card">
     <h3>ลงทะเบียนรับ Central Voucher 1,200 บาท</h3>
 
     <input id="name" placeholder="ชื่อ-นามสกุล" />
-    <input id="tel" placeholder="เบอร์โทร" inputmode="numeric" />
+    <input id="tel" placeholder="เบอร์โทร" />
     <input id="code" placeholder="Voucher Code (เช่น AS1005701)" />
 
     <button id="btn" onclick="submitForm()">รับ Voucher</button>
     <div class="hint" id="status"></div>
   </div>
 
- <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
 
-  async function submitForm() {
-    const btn = document.getElementById("btn");
-    const status = document.getElementById("status");
+    async function submitForm() {
+      const btn = document.getElementById("btn");
+      const status = document.getElementById("status");
 
-    const nameEl = document.getElementById("name");
-    const telEl = document.getElementById("tel");
-    const codeEl = document.getElementById("code");
+      const name = document.getElementById("name").value.trim();
+      const tel = document.getElementById("tel").value.trim();
+      const code = document.getElementById("code").value.trim().toUpperCase();
 
-    const name = nameEl.value.trim();
-    const tel = telEl.value.trim();
-    const code = codeEl.value.trim().toUpperCase();
+      if (!name || !tel || !code) {
+        status.textContent = "กรอกข้อมูลให้ครบ";
+        return;
+      }
 
-    if (!name || !tel || !code) {
-      status.textContent = "กรอกข้อมูลให้ครบ";
-      status.style.color = "#ef4444";
-      return;
+      btn.disabled = true;
+      status.textContent = "กำลังส่งข้อมูล...";
+
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action:"submitCentral", name, tel, code })
+        });
+
+        status.textContent = "รับ Voucher เรียบร้อย 🎉 กำลังเปิดรูปให้...";
+        
+        // 🔥 เปิดหน้ารูปจาก Google Sheet ล่าสุด
+        // ใส่ลิงก์ชีตของคุณ (ที่เปิด public)
+        window.open(
+          "https://docs.google.com/spreadsheets/d/1XZihZvcbbgviSnBPYvuZkPP7HcbCJkcq-I5Vf9Ziq3M/edit#gid=0",
+          "_blank"
+        );
+
+      } catch (e) {
+        status.textContent = "เชื่อมต่อระบบไม่ได้";
+      } finally {
+        btn.disabled = false;
+      }
     }
-
-    btn.disabled = true;
-    status.textContent = "กำลังส่งข้อมูล...";
-    status.style.color = "#93c5fd";
-
-    try {
-      // 🔥 ใช้วิธีเดิมที่เคยยิงได้
-      await fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors",   // ไม่อ่าน response = ไม่โดน CORS
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "submitCentral", name, tel, code })
-      });
-
-      status.textContent = "รับ Voucher เรียบร้อย 🎉 กำลังเปิดรูป...";
-      status.style.color = "#22c55e";
-
-      // ✅ เปิดลิงก์รูปอัตโนมัติ (เปลี่ยนเป็น pattern รูปของคุณ)
-      const imgUrl = "https://drive.google.com/uc?export=view&id=PUT_IMAGE_FILE_ID_HERE";
-      window.open(imgUrl, "_blank");
-
-      nameEl.value = "";
-      telEl.value = "";
-      codeEl.value = "";
-
-    } catch (e) {
-      console.error(e);
-      status.textContent = "เชื่อมต่อระบบไม่ได้";
-      status.style.color = "#ef4444";
-    } finally {
-      btn.disabled = false;
-    }
-  }
-</script>
+  </script>
 </body>
 </html>

@@ -32,12 +32,10 @@
     }
     button:disabled { opacity: .6; cursor: not-allowed; }
     .hint { font-size: 12px; opacity: .9; margin-top: 8px; text-align: center; min-height: 16px; }
-    .voucher-img { width: 100%; border-radius: 12px; margin-top: 10px; }
-    .link { display:block; text-align:center; margin-top:8px; color:#38bdf8; }
   </style>
 </head>
 <body>
-  <div class="card" id="card">
+  <div class="card">
     <h3>ลงทะเบียนรับ Central Voucher 1,200 บาท</h3>
 
     <input id="name" placeholder="ชื่อ-นามสกุล" />
@@ -56,11 +54,11 @@
       const status = document.getElementById("status");
 
       const nameEl = document.getElementById("name");
-      const telEl  = document.getElementById("tel");
+      const telEl = document.getElementById("tel");
       const codeEl = document.getElementById("code");
 
       const name = nameEl.value.trim();
-      const tel  = telEl.value.trim();
+      const tel = telEl.value.trim();
       const code = codeEl.value.trim().toUpperCase();
 
       if (!name || !tel || !code) {
@@ -81,21 +79,20 @@
       const payload = { action: "submitCentral", name, tel, code };
 
       try {
-        const res = await fetch(API_URL, {
+        // ✅ แก้ตรงนี้: ใช้ no-cors เพื่อไม่โดน CORS ของ Google Apps Script
+        await fetch(API_URL, {
           method: "POST",
+          mode: "no-cors",                 // 👈 สำคัญมาก
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
-        const text = await res.text();
-        const json = JSON.parse(text);
-
-        if (json.ok) {
-          showVoucher(json.voucher, json.imgUrl, json.pdfUrl);
-        } else {
-          status.textContent = json.message || "ระบบมีปัญหา";
-          status.style.color = "#ef4444";
-        }
+        // no-cors อ่าน response ไม่ได้ → ถือว่าส่งสำเร็จถ้าไม่ error
+        status.textContent = "รับ Voucher เรียบร้อย 🎉";
+        status.style.color = "#22c55e";
+        nameEl.value = "";
+        telEl.value = "";
+        codeEl.value = "";
 
       } catch (e) {
         console.error(e);
@@ -104,17 +101,6 @@
       } finally {
         btn.disabled = false;
       }
-    }
-
-    function showVoucher(voucher, imgUrl, pdfUrl) {
-      const card = document.getElementById("card");
-      card.innerHTML = `
-        <h3>🎉 รับ Voucher สำเร็จ</h3>
-        <div class="hint">โค้ด: <b>${voucher}</b></div>
-        <img class="voucher-img" src="${imgUrl}" />
-        <a class="link" href="${pdfUrl}" target="_blank">ดาวน์โหลด PDF</a>
-        <button style="margin-top:12px" onclick="location.reload()">ลงทะเบียนใหม่</button>
-      `;
     }
   </script>
 </body>

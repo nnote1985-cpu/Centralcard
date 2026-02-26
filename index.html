@@ -1,49 +1,142 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>ลงทะเบียนรับ Central Voucher</title>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: radial-gradient(1200px 600px at 50% -10%, #1f2a44 0%, #0f172a 55%, #0b1222 100%);
-      margin: 0; padding: 16px; min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
+      margin: 0;
+      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #e5e7eb;
     }
+
     .card {
-      width: 100%; max-width: 420px; background: #111827;
-      border-radius: 16px; padding: 16px;
-      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(180deg, #0b1222 0%, #0f172a 100%);
+      border-radius: 20px;
+      padding: 22px 18px 18px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.45);
+      border: 1px solid rgba(148,163,184,.12);
     }
-    h3 { margin: 0 0 12px; text-align: center; }
+
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .logo {
+      height: 115px;
+      max-width: 340px;
+      object-fit: contain;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.5));
+    }
+
+    h2 {
+      margin: 6px 0 4px;
+      font-size: 20px;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin: 0 auto 14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(34,197,94,.15);
+      color: #22c55e;
+      border: 1px solid rgba(34,197,94,.35);
+    }
+
+    .field { margin-bottom: 12px; }
+
     input {
-      width: 100%; padding: 12px; border-radius: 10px;
-      border: 1px solid #1f2937; background: #0b1220;
-      color: #e5e7eb; margin-bottom: 10px; font-size: 14px; outline: none;
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,.2);
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 14px;
+      outline: none;
     }
-    input::placeholder { color: #94a3b8; }
+
     button {
-      width: 100%; padding: 12px; border: none; border-radius: 10px;
-      background: linear-gradient(135deg,#38bdf8,#60a5fa);
-      color: #0b1220; font-weight: 700; font-size: 15px; cursor: pointer;
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+      color: #020617;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 6px;
+      box-shadow: 0 10px 20px rgba(56,189,248,.35);
     }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .hint { font-size: 12px; opacity: .9; margin-top: 8px; text-align: center; min-height: 16px; }
+
+    .status {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h3>ลงทะเบียนรับ Central Voucher 1,200 บาท</h3>
 
-    <input id="name" placeholder="ชื่อ-นามสกุล" />
-    <input id="tel" placeholder="เบอร์โทร" inputmode="numeric" />
-    <input id="code" placeholder="Voucher Code (เช่น AS1005701)" />
+  <div class="card">
+    <div class="logo-wrap">
+      <img src="./1772086383068.png" class="logo" alt="ASAKAN Logo">
+    </div>
+
+    <h2>Register for Central Voucher 1,200 Baht</h2>
+    <div class="subtitle">กรอกข้อมูลเพื่อรับสิทธิ์ของคุณทันที</div>
+
+    <div style="text-align:center">
+      <span class="badge">สำหรับลูกค้าที่จองที่ Booth เท่านั้น</span>
+    </div>
+
+    <div class="field">
+      <input id="name" type="text" placeholder="ชื่อ–นามสกุล">
+    </div>
+
+    <div class="field">
+      <input id="tel" type="tel" placeholder="เบอร์โทร">
+    </div>
+
+    <div class="field">
+      <input id="code" type="text" placeholder="Voucher Code (ได้รับจาก Sales)">
+    </div>
 
     <button id="btn" onclick="submitForm()">รับ Voucher</button>
-    <div class="hint" id="status"></div>
+
+    <div id="status" class="status"></div>
+
+    <div class="note" style="margin-top:10px;text-align:center;font-size:12px;color:#94a3b8;">
+      สิทธิ์นี้เฉพาะลูกค้าที่ทำการจองภายในงานเท่านั้น<br>
+      1 คน / 1 สิทธิ์ • เงื่อนไขเป็นไปตามที่บริษัทกำหนด
+    </div>
   </div>
 
   <script>

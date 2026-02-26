@@ -27,21 +27,19 @@
       border: 1px solid rgba(148,163,184,.12);
     }
 
-    /* ลบ background + padding ออก */
-	.logo-wrap {
- 	 display: flex;
-  	justify-content: center;
-  	margin-bottom: 14px;
-  	border-radius: 0; /* หรือเอาออกทั้งบรรทัดก็ได้ */
-       }
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
 
     .logo {
-  	height: 96px;          /* กำลังสวย ไม่ใหญ่เกิน */
-  	max-width: 340px;
-  	object-fit: contain;
-  	margin-bottom: 6px;
-  	filter: drop-shadow(0 10px 18px rgba(0,0,0,.5));
-       }
+      height: 96px;
+      max-width: 340px;
+      object-fit: contain;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.5));
+    }
 
     h2 {
       margin: 6px 0 4px;
@@ -70,9 +68,7 @@
       border: 1px solid rgba(34,197,94,.35);
     }
 
-    .field {
-      margin-bottom: 12px;
-    }
+    .field { margin-bottom: 12px; }
 
     input {
       width: 100%;
@@ -83,15 +79,6 @@
       color: #e5e7eb;
       font-size: 14px;
       outline: none;
-    }
-
-    input::placeholder {
-      color: #64748b;
-    }
-
-    input:focus {
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 2px rgba(56,189,248,.2);
     }
 
     button {
@@ -108,33 +95,17 @@
       box-shadow: 0 10px 20px rgba(56,189,248,.35);
     }
 
-    button:active {
-      transform: translateY(1px);
-      box-shadow: 0 6px 14px rgba(56,189,248,.35);
-    }
-
-    .note {
+    .status {
       margin-top: 10px;
       text-align: center;
-      font-size: 12px;
-      color: #94a3b8;
-      line-height: 1.5;
-    }
-
-    .success {
-      margin-top: 10px;
-      text-align: center;
-      color: #22c55e;
-      font-weight: 600;
       font-size: 13px;
-      display: none;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <!-- 🔧 ใส่โลโก้บริษัทตรงนี้ -->
     <div class="logo-wrap">
       <img src="./1772086383068.png" class="logo" alt="ASAKAN Logo">
     </div>
@@ -147,29 +118,26 @@
     </div>
 
     <div class="field">
-      <input type="text" placeholder="ชื่อ–นามสกุล">
+      <input id="name" type="text" placeholder="ชื่อ–นามสกุล">
     </div>
 
     <div class="field">
-      <input type="tel" placeholder="เบอร์โทร">
+      <input id="tel" type="tel" placeholder="เบอร์โทร">
     </div>
 
     <div class="field">
-      <input type="text" placeholder="Voucher Code (ได้รับจาก Sales)">
+      <input id="code" type="text" placeholder="Voucher Code (ได้รับจาก Sales)">
     </div>
 
-    <button>รับ Voucher</button>
+    <button id="btn" onclick="submitForm()">รับ Voucher</button>
 
-    <div class="success" id="successMsg">รับ Voucher เรียบร้อย 🎉</div>
+    <div id="status" class="status"></div>
 
-    <div class="note">
+    <div class="note" style="margin-top:10px;text-align:center;font-size:12px;color:#94a3b8;">
       สิทธิ์นี้เฉพาะลูกค้าที่ทำการจองภายในงานเท่านั้น<br>
       1 คน / 1 สิทธิ์ • เงื่อนไขเป็นไปตามที่บริษัทกำหนด
     </div>
   </div>
-
-</body>
-</html>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyBYCg_TkGLx8-Eyikn-PWWOdiVj7YjfU4Yr_r87hz_gh2h7yH7pt0LpTgfNvhotdeU7Q/exec";
@@ -204,15 +172,13 @@
       const payload = { action: "submitCentral", name, tel, code };
 
       try {
-        // ✅ แก้ตรงนี้: ใช้ no-cors เพื่อไม่โดน CORS ของ Google Apps Script
         await fetch(API_URL, {
           method: "POST",
-          mode: "no-cors",                 // 👈 สำคัญมาก
+          mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
-        // no-cors อ่าน response ไม่ได้ → ถือว่าส่งสำเร็จถ้าไม่ error
         status.textContent = "รับ Voucher เรียบร้อย 🎉";
         status.style.color = "#22c55e";
         nameEl.value = "";
@@ -228,5 +194,6 @@
       }
     }
   </script>
+
 </body>
 </html>
